@@ -56,3 +56,7 @@ npm run verify:demo               # PW_CHANNEL=chrome 可改用 Chrome
 | `examples/` | 演示目录和占位素材生成脚本 |
 
 个人素材（`assets/`、`catalog.json`、生成的 `data/` 和 HTML）都在 `.gitignore` 里，不会进入仓库。
+
+## 许可
+
+代码以 [MIT](LICENSE) 许可发布。演示素材由 `examples/make_demo_assets.py` 程序生成，同样适用 MIT。你自己放进 `assets/` 的图片不受本许可约束，也不会进入仓库。
