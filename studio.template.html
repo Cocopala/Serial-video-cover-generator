@@ -1,0 +1,173 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>视频封面生成器</title>
+<style>
+:root{color-scheme:light;--ink:#142b30;--ink-2:#3d5a5f;--muted:#7b8f90;--paper:#f3eee3;--card:#fffdf8;--line:#d9d3c4;--accent:#e8892b;--wrap:848px;--label:84px;--gap:16px;--h:min(220px,calc((min(100vw,var(--wrap)) - 48px - var(--label) - 2*var(--gap))*9/28))}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scrollbar-gutter:stable;overflow-y:scroll}body{margin:0;background:var(--paper);color:var(--ink);font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif}
+button{font:inherit;color:inherit;cursor:pointer}button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #1377b9;outline-offset:3px}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 24px}
+.topbar{position:sticky;top:0;z-index:10;background:var(--ink);color:#fbf3df;box-shadow:0 2px 14px #0b1a1d40}
+.topbar .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;height:60px}
+h1{margin:0;font-size:18px;font-weight:800;letter-spacing:.06em;display:flex;align-items:center;gap:10px;white-space:nowrap}h1::before{content:"";width:10px;height:22px;border-radius:2px;background:var(--accent)}
+nav{display:flex;gap:4px;padding:4px;border-radius:999px;background:#ffffff14}
+nav button{border:0;background:transparent;color:#d7e0dc;font-size:14px;font-weight:700;padding:8px 16px;border-radius:999px;white-space:nowrap}nav button:hover{color:#fff;background:#ffffff14}nav button[aria-selected=true]{background:#fbf3df;color:var(--ink)}
+main.wrap{padding-top:24px;padding-bottom:80px}.panel[hidden]{display:none}
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.stepper{display:inline-flex;align-items:stretch;height:44px;border:1px solid var(--line);border-radius:8px;background:var(--card);overflow:hidden;box-shadow:0 1px 3px #142b3012}
+.stepper button{width:44px;border:0;background:transparent;font-size:22px;font-weight:700;color:var(--ink-2)}.stepper button:hover{background:#efe8d8;color:var(--ink)}.stepper button:active{background:#e5dcc7}
+.stepper .num{display:flex;align-items:center;gap:2px;padding:0 6px;border-left:1px solid var(--line);border-right:1px solid var(--line);font-size:22px;font-weight:800;color:var(--ink)}
+.stepper input{width:72px;border:0;background:transparent;font:inherit;color:inherit;text-align:center;padding:0}.stepper input:focus-visible{outline:none}.stepper:focus-within{border-color:#1377b9}
+.pager{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--ink-2);font-variant-numeric:tabular-nums}.pager[hidden]{display:none}
+.pager button{width:36px;height:36px;border:1px solid var(--line);border-radius:8px;background:var(--card);font-size:18px;line-height:1}.pager button:hover:not(:disabled){border-color:var(--ink-2)}.pager button:disabled{opacity:.35;cursor:default}
+.gallery{display:flex;flex-direction:column;gap:18px}
+.row{display:grid;grid-template-columns:var(--label) auto auto;justify-content:start;align-items:center;gap:var(--gap)}
+.tag{display:flex;flex-direction:column;gap:4px;min-width:0}.tag b{font-size:20px;line-height:1.1;overflow-wrap:anywhere}.tag span{font-size:12px;color:var(--muted);line-height:1.35}
+.cover{display:block;height:var(--h);border-radius:6px;overflow:hidden;background:#1c3439;box-shadow:0 3px 12px #142b3022;cursor:pointer;transition:transform .12s,box-shadow .12s}
+.cover.wide{width:calc(var(--h)*16/9)}.cover.standard{width:calc(var(--h)*4/3)}.cover canvas{display:block;width:100%;height:100%}
+.cover:hover{transform:translateY(-2px);box-shadow:0 8px 20px #142b3033}.cover[aria-disabled=true]{pointer-events:none}.cover[aria-busy=true]{opacity:.55;cursor:progress}
+.slot{height:var(--h)}
+.to-top{position:fixed;right:24px;bottom:24px;z-index:10;width:48px;height:48px;border:0;border-radius:50%;background:var(--ink);color:#fbf3df;font-size:22px;box-shadow:0 6px 18px #142b3040;opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .2s,transform .2s}.to-top.show{opacity:1;transform:none;pointer-events:auto}.to-top:hover{background:#21434a}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.error{color:#a12212;font-size:14px;margin:12px 0 0}.error:empty{display:none}
+@media(max-width:640px){:root{--label:0px;--gap:10px;--h:calc((100vw - 32px - var(--gap))*9/28)}.wrap{padding:0 16px}.topbar .wrap{height:auto;padding-top:10px;padding-bottom:10px;flex-wrap:wrap}h1{font-size:16px}nav button{padding:7px 11px;font-size:12px}
+.row{grid-template-columns:auto auto;row-gap:6px}.tag{grid-column:1/-1;flex-direction:row;align-items:baseline;gap:8px}.tag b{font-size:15px}.to-top{right:16px;bottom:16px}}
+</style></head><body>
+<header class="topbar"><div class="wrap"><h1>视频封面生成器</h1><nav id="tabs" role="tablist" aria-label="封面系列"></nav></div></header>
+<main class="wrap" id="main"></main>
+<button class="to-top" id="toTop" type="button" aria-label="回到顶部" title="回到顶部">↑</button>
+<p class="sr-only" id="status" role="status" aria-live="polite"></p><noscript>请启用 JavaScript 后使用封面生成器。</noscript>
+<script>
+'use strict';
+const SERIES=__CATALOG_JSON__;
+const MANIFEST=__MANIFEST_JSON__;
+const ROWS_PER_PAGE=4,JPG_QUALITY=0.92,THUMB_H=540,DEBOUNCE_MS=120,FONT='"Arial Black", Arial, sans-serif';
+const originals={};
+__LEGACY_RENDERER__
+const state={},statusBox=document.getElementById('status');
+let active=SERIES.some(s=>'#'+s.id===location.hash)?location.hash.slice(1):SERIES[0].id;
+const numberKey=id=>'cover-studio-number-'+id;
+function sanitize(s){return String(s).normalize('NFKC').replace(/[^0-9]/g,'').slice(0,4)}
+function pad(n){return String(n).padStart(3,'0')}
+function imageLoad(src){return new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=()=>reject(Error('图片载入失败，请重新打开页面。'));im.src=src})}
+function coversOf(entry){return entry.renderer==='legacy'?{'16:9':{legacy:true},'4:3':{legacy:true}}:entry.covers}
+function el(tag,props={},...kids){const n=document.createElement(tag);for(const [k,v] of Object.entries(props)){if(k==='class')n.className=v;else if(k.startsWith('data-')||k.startsWith('aria-')||k==='role')n.setAttribute(k,v);else n[k]=v}n.append(...kids);return n}
+
+// ---------- 按需加载图片：data/thumb（缩略图）与 data/full（原图）各是一个小脚本，只加载当前页用到的 ----------
+const assetWaiters=new Map(),imageCache=new Map(),legacyBase=new Map(),assetOfLegacy={};
+for(const s of SERIES)for(const e of s.entries)if(e.renderer==='legacy')assetOfLegacy[e.legacyKey]=e.asset;
+window.__assetLoaded=(kind,id,url)=>{const w=assetWaiters.get(kind+'/'+id);if(w)w.resolve(url)};
+function assetURL(kind,name){
+ const meta=MANIFEST[name];if(!meta)return Promise.reject(Error('目录里没有素材 '+name+'，请重新运行 build.py'));
+ const key=kind+'/'+meta.id;if(assetWaiters.has(key))return assetWaiters.get(key).promise;
+ let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b});assetWaiters.set(key,{promise,resolve});
+ const script=el('script',{src:'data/'+key+'.js'});script.onerror=()=>{assetWaiters.delete(key);reject(Error('缺少 data/'+key+'.js：HTML 要和 data 文件夹放在一起，或重新运行 build.py'))};
+ promise.then(()=>script.remove(),()=>script.remove());document.head.append(script);return promise;
+}
+function assetImage(kind,name){const key=kind+'/'+name;if(!imageCache.has(key))imageCache.set(key,assetURL(kind,name).then(imageLoad).catch(e=>{imageCache.delete(key);throw e}));return imageCache.get(key)}
+async function svgImage(markup){const url=URL.createObjectURL(new Blob([markup],{type:'image/svg+xml;charset=utf-8'}));try{return await imageLoad(url)}finally{URL.revokeObjectURL(url)}}
+// 历史款缩略图底图（含 4:3 虚化补边）只算一次，改编号只重画文字层
+function legacyThumbBase(key,ratio){const k=key+'|'+ratio;if(!legacyBase.has(k))legacyBase.set(k,assetURL('thumb',assetOfLegacy[key]).then(href=>svgImage(svg(key,ratio,'',{href,layer:'base',height:THUMB_H}))).catch(e=>{legacyBase.delete(k);throw e}));return legacyBase.get(k)}
+
+// ---------- 页面骨架：每个系列一个导航 tab + 独立面板（独立编号、独立分页） ----------
+for(const s of SERIES){
+ let saved='';try{saved=localStorage.getItem(numberKey(s.id))||localStorage.getItem('jdsj-cover-studio-number-v2-'+s.id)||''}catch{}
+ const st=state[s.id]={series:s,page:0,revision:0,timer:null,items:new Map()};
+ const tab=el('button',{type:'button',id:'tab-'+s.id,role:'tab','aria-controls':'panel-'+s.id,'aria-selected':'false',tabIndex:-1,'data-page':s.id},s.tab);
+ document.getElementById('tabs').append(tab);
+ st.input=el('input',{type:'text',inputMode:'numeric',maxLength:4,autocomplete:'off',spellcheck:false,value:pad(sanitize(saved)||'1'),'aria-label':s.tab+' 集数编号'});
+ const minus=el('button',{type:'button','aria-label':'编号减一',title:'减一'},'−'),plus=el('button',{type:'button','aria-label':'编号加一',title:'加一'},'+');
+ st.prev=el('button',{type:'button','aria-label':'上一页'},'‹');st.next=el('button',{type:'button','aria-label':'下一页'},'›');st.pageText=el('span');
+ st.pager=el('div',{class:'pager'},st.prev,st.pageText,st.next);
+ st.gallery=el('div',{class:'gallery'});st.error=el('p',{class:'error',role:'alert'});
+ st.panel=el('section',{id:'panel-'+s.id,'data-series':s.id,class:'panel',role:'tabpanel','aria-labelledby':'tab-'+s.id},
+  el('div',{class:'toolbar'},el('div',{class:'stepper'},minus,el('label',{class:'num'},el('span',{'aria-hidden':'true'},'#'),st.input),plus),st.pager),st.gallery,st.error);
+ st.panel.hidden=true;document.getElementById('main').append(st.panel);
+ minus.addEventListener('click',()=>step(st,-1));plus.addEventListener('click',()=>step(st,1));
+ st.input.addEventListener('input',()=>{st.input.value=sanitize(st.input.value);scheduleRefresh(st)});
+ st.input.addEventListener('blur',()=>{st.input.value=episode(st)});
+ st.input.addEventListener('keydown',e=>{if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();step(st,e.key==='ArrowUp'?1:-1)}});
+ st.prev.addEventListener('click',()=>goPage(st,st.page-1));st.next.addEventListener('click',()=>goPage(st,st.page+1));
+ tab.addEventListener('click',()=>selectSeries(s.id));
+ tab.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const ids=SERIES.map(x=>x.id),i=ids.indexOf(s.id);const next=e.key==='Home'?ids[0]:e.key==='End'?ids.at(-1):ids[(i+(e.key==='ArrowRight'?1:ids.length-1))%ids.length];selectSeries(next);document.getElementById('tab-'+next).focus()});
+}
+function episode(st){return pad(sanitize(st.input.value)||'0')}
+function step(st,d){const n=Math.min(9999,Math.max(0,Number(sanitize(st.input.value)||0)+d));st.input.value=pad(n);scheduleRefresh(st)}
+function pageCount(st){return Math.max(1,Math.ceil(st.series.entries.length/ROWS_PER_PAGE))}
+function goPage(st,p){const max=pageCount(st)-1;p=Math.min(max,Math.max(0,p));if(p===st.page)return;st.page=p;buildRows(st);refresh(st);window.scrollTo({top:0})}
+
+// ---------- 当前页的行：一个款式一行，左 16:9 右 4:3；entries[0] 永远在第一页第一行 ----------
+function itemFor(st,entry,ratio){
+ const id=st.series.id+'-'+entry.id+'-'+ratio.replace(':','x');if(st.items.has(id))return st.items.get(id);
+ const label=entry.name&&entry.name!==entry.id?entry.id+'-'+entry.name:entry.id;
+ const canvas=el('canvas',{role:'img'});canvas.width=(ratio==='16:9'?1920:1440)*THUMB_H/1080;canvas.height=THUMB_H;
+ const a=el('a',{href:'#',class:'cover '+(ratio==='16:9'?'wide':'standard'),'data-id':id,title:label+' · '+ratio+' · 点击下载 JPG','aria-label':'下载 '+label+' '+ratio+' JPG','aria-disabled':'true'},canvas);
+ const item={id,st,entry,ratio,cover:coversOf(entry)[ratio],label,a,canvas,number:null};
+ a.addEventListener('click',e=>{e.preventDefault();download(item)});st.items.set(id,item);return item;
+}
+function buildRows(st){
+ const total=pageCount(st);st.page=Math.min(st.page,total-1);
+ st.pager.hidden=total<2;st.pageText.textContent=(st.page+1)+' / '+total;st.prev.disabled=st.page===0;st.next.disabled=st.page===total-1;
+ const rows=st.series.entries.slice(st.page*ROWS_PER_PAGE,(st.page+1)*ROWS_PER_PAGE).map(entry=>{
+  const covers=coversOf(entry),tag=el('div',{class:'tag'},el('b',{},entry.id));if(entry.name!==entry.id)tag.append(el('span',{},entry.name));
+  const cells=['16:9','4:3'].map(r=>covers[r]?itemFor(st,entry,r).a:el('div',{class:'slot','aria-hidden':'true'}));
+  return el('div',{class:'row','data-entry':entry.id},tag,...cells)});
+ st.gallery.replaceChildren(...rows);
+}
+function visibleItems(st){return st.series.entries.slice(st.page*ROWS_PER_PAGE,(st.page+1)*ROWS_PER_PAGE).flatMap(e=>Object.keys(coversOf(e)).map(r=>itemFor(st,e,r)))}
+
+// ---------- 绘制：legacy = 历史款 A–F 原 SVG 定位；其余 = 无编号底图 + 独立编号文字层 ----------
+function numberFont(n,size){return(n.italic?'italic ':'')+'900 '+size+'px '+FONT}
+function drawNumber(ctx,item,n){
+ const meta=MANIFEST[item.cover.asset],s={...item.st.series.numberStyle,...item.cover.number},c=ctx.canvas;
+ ctx.save();ctx.scale(c.width/meta.w,c.height/meta.h);ctx.translate(s.x,s.y);ctx.rotate((s.angle||0)*Math.PI/180);
+ const text='#'+n;let size=s.fontSize;ctx.font=numberFont(s,size);const width=ctx.measureText(text).width;if(width>s.maxWidth){size*=s.maxWidth/width;ctx.font=numberFont(s,size)}
+ ctx.textAlign='center';ctx.textBaseline='alphabetic';const m=ctx.measureText(text),y=(m.actualBoundingBoxAscent-m.actualBoundingBoxDescent)/2;
+ if(s.stroke){ctx.lineJoin='round';ctx.lineWidth=(s.strokeWidth||2)*2;ctx.strokeStyle=s.stroke;ctx.strokeText(text,0,y)}
+ ctx.fillStyle=s.fill||'#fff0bd';ctx.fillText(text,0,y);ctx.restore();
+}
+// 缩略图：小图 + 编号层
+async function renderThumb(item,n,revision){
+ const canvas=item.canvas,ctx=canvas.getContext('2d');let layers;
+ if(item.cover.legacy){const key=item.entry.legacyKey;layers=await Promise.all([legacyThumbBase(key,item.ratio),svgImage(svg(key,item.ratio,n,{layer:'text',height:THUMB_H}))])}
+ else layers=[await assetImage('thumb',item.cover.asset)];
+ if(revision!==item.st.revision)return;
+ ctx.clearRect(0,0,canvas.width,canvas.height);for(const im of layers)ctx.drawImage(im,0,0,canvas.width,canvas.height);
+ if(!item.cover.legacy)drawNumber(ctx,item,n);
+ item.number=n;canvas.setAttribute('aria-label',item.label+' '+item.ratio+' #'+n);item.a.setAttribute('aria-disabled','false');
+}
+// 下载：此时才加载原图，画到 1920/1440×1080 的离屏画布
+async function renderFull(item,n){
+ const canvas=document.createElement('canvas');canvas.width=item.ratio==='16:9'?1920:1440;canvas.height=1080;const ctx=canvas.getContext('2d');
+ if(item.cover.legacy){const href=await assetURL('full',assetOfLegacy[item.entry.legacyKey]);ctx.drawImage(await svgImage(svg(item.entry.legacyKey,item.ratio,n,{href})),0,0,canvas.width,canvas.height)}
+ else{ctx.drawImage(await assetImage('full',item.cover.asset),0,0,canvas.width,canvas.height);drawNumber(ctx,item,n)}
+ return canvas;
+}
+async function refresh(st){
+ clearTimeout(st.timer);st.timer=null;const revision=++st.revision,n=episode(st),visible=visibleItems(st);st.error.textContent='';
+ try{localStorage.setItem(numberKey(st.series.id),sanitize(st.input.value))}catch{}
+ visible.forEach(x=>x.a.setAttribute('aria-disabled','true'));
+ try{await document.fonts.ready;await Promise.all(visible.map(x=>renderThumb(x,n,revision)));if(revision===st.revision)statusBox.textContent=st.series.tab+' #'+n+' 已就绪。'}
+ catch(e){if(revision===st.revision)st.error.textContent=e.message}
+}
+// 连续点 +/- 或打字时，停手 120ms 再重画；期间先禁用下载，防止下到旧编号
+function scheduleRefresh(st){clearTimeout(st.timer);st.revision++;visibleItems(st).forEach(x=>x.a.setAttribute('aria-disabled','true'));st.timer=setTimeout(()=>refresh(st),DEBOUNCE_MS)}
+async function download(item){
+ if(item.a.getAttribute('aria-disabled')==='true')return;const n=item.number;item.a.setAttribute('aria-disabled','true');item.a.setAttribute('aria-busy','true');
+ try{const canvas=await renderFull(item,n),blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(Error('JPG 生成失败')),'image/jpeg',JPG_QUALITY));
+  const url=URL.createObjectURL(blob),a=el('a',{href:url,download:item.st.series.filePrefix+'-'+item.label+'-'+item.ratio.replace(':','x')+'-#'+n+'.jpg'});
+  document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);statusBox.textContent='已生成 '+a.download}
+ catch(e){item.st.error.textContent='下载失败：'+e.message}
+ finally{item.a.removeAttribute('aria-busy');if(item.number===episode(item.st)&&!item.st.timer)item.a.setAttribute('aria-disabled','false')}
+}
+// 供 verify.cjs 对照历史渲染
+window.__studio={async renderFull(series,id,ratio,n){const st=state[series],entry=st.series.entries.find(e=>e.id===id);return(await renderFull(itemFor(st,entry,ratio),n)).toDataURL('image/png')}};
+function selectSeries(id){
+ active=state[id]?id:SERIES[0].id;
+ for(const s of SERIES){const on=s.id===active,tab=document.getElementById('tab-'+s.id);tab.setAttribute('aria-selected',String(on));tab.tabIndex=on?0:-1;state[s.id].panel.hidden=!on}
+ if(location.hash!=='#'+active)history.replaceState(null,'','#'+active);
+ const st=state[active];buildRows(st);refresh(st);
+}
+window.addEventListener('hashchange',()=>selectSeries(location.hash.slice(1)));
+const toTop=document.getElementById('toTop');
+const syncTop=()=>toTop.classList.toggle('show',scrollY>200);addEventListener('scroll',syncTop,{passive:true});syncTop();
+toTop.addEventListener('click',()=>{window.scrollTo({top:0});document.getElementById('tab-'+active).focus({preventScroll:true})});
+selectSeries(active);
+</script></body></html>

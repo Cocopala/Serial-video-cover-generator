@@ -1,0 +1,27 @@
+# ---- 个人素材与本地数据：永不入库 ----
+/assets/
+/catalog.json
+/backups/
+/skill/
+/data/
+/validation/
+/封面生成器.html
+/*.png
+/验证结果.json
+/使用说明.md
+/实施与验证记录.md
+# 本机专用脚本（含个人路径）
+/update_entrypoints.py
+/check-entrypoints.cjs
+/import_sources.py
+
+# ---- 演示的生成物 ----
+/examples/assets/
+/examples/demo/
+
+# ---- 通用 ----
+node_modules/
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db

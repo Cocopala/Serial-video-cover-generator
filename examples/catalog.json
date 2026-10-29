@@ -1,0 +1,32 @@
+{
+  "_说明": "演示目录：素材由 make_demo_assets.py 程序生成。entries 按新增时间倒序，第 0 项显示在第一行。",
+  "series": [
+    {
+      "id": "travel",
+      "tab": "旅行系列",
+      "filePrefix": "旅行系列",
+      "numberStyle": {"fill": "#ffe52b", "stroke": "#141c22", "strokeWidth": 3, "italic": true},
+      "entries": [
+        {"id": "B", "name": "海洋", "added": "2026-10-29", "covers": {
+          "16:9": {"asset": "demo-ocean-16x9.png", "number": {"x": 1170, "y": 780, "angle": 0, "maxWidth": 290, "fontSize": 92}},
+          "4:3": {"asset": "demo-ocean-4x3.png", "number": {"x": 1020, "y": 860, "angle": 0, "maxWidth": 290, "fontSize": 92}}
+        }},
+        {"id": "A", "name": "日落", "added": "2026-10-28", "covers": {
+          "16:9": {"asset": "demo-sunset-16x9.png", "number": {"x": 500, "y": 780, "angle": 0, "maxWidth": 290, "fontSize": 92}},
+          "4:3": {"asset": "demo-sunset-4x3.png", "number": {"x": 420, "y": 860, "angle": 0, "maxWidth": 290, "fontSize": 92}}
+        }}
+      ]
+    },
+    {
+      "id": "diary",
+      "tab": "日记系列",
+      "filePrefix": "日记系列",
+      "numberStyle": {"fill": "#fff0bd"},
+      "entries": [
+        {"id": "森林", "name": "森林", "added": "2026-10-29", "covers": {
+          "16:9": {"asset": "demo-forest-16x9.png", "number": {"x": 836, "y": 790, "angle": -3, "maxWidth": 290, "fontSize": 92}}
+        }}
+      ]
+    }
+  ]
+}

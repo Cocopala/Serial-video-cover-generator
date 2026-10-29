@@ -1,0 +1,12 @@
+{
+  "name": "serial-video-cover-generator",
+  "private": true,
+  "description": "Offline cover generator for numbered video series: blank-plate artwork + live episode number layer, JPG export.",
+  "scripts": {
+    "demo": "python -X utf8 examples/make_demo_assets.py && python -X utf8 build.py --catalog examples/catalog.json --assets examples/assets --out examples/demo/封面生成器.html",
+    "verify:demo": "node verify.cjs examples/demo/封面生成器.html examples/catalog.json"
+  },
+  "devDependencies": {
+    "playwright": "^1.48.0"
+  }
+}
